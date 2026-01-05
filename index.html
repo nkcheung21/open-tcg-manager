@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open TCG Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e293b;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            min-height: 90vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--dark);
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            min-height: 70vh;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                padding: 0.75rem;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <a href="#" class="logo">
+                <span class="logo-icon">🃏</span>
+                <span>Open TCG Manager</span>
+            </a>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" id="syncBtn">
+                    🔄 Sync
+                </button>
+                <button class="btn btn-secondary" id="exportBtn">
+                    📤 Export
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="tab active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="tab" data-tab="collection">📚 Collection</button>
+            <button class="tab" data-tab="decks">🃏 Decks</button>
+            <button class="tab" data-tab="market">💰 Market</button>
+            <button class="tab" data-tab="settings">⚙️ Settings</button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <h1>Dashboard Overview</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCards">0</div>
+                        <div>Total Cards</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="collectionValue">$0</div>
+                        <div>Collection Value</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalDecks">0</div>
+                        <div>Total Decks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="wishlist">0</div>
+                        <div>Wishlist Items</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 2rem;">Quick Actions</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-title">Add New Card</div>
+                        <p>Add single card to collection</p>
+                        <button class="btn btn-primary" style="margin-top: 1rem;">➕ Add Card</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Import Cards</div>
+                        <p>Bulk import from CSV</p>
+                        <button class="btn btn-secondary" style="margin-top: 1rem;">📁 Import</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Create Deck</div>
+                        <p>Build new deck</p>
+                        <button class="btn btn-success" style="margin-top: 1rem;">🃏 Create Deck</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collection Tab -->
+            <div id="collection" class="tab-content">
+                <h1>Card Collection</h1>
+                <div style="display: flex; gap: 1rem; margin: 1.5rem 0;">
+                    <input type="text" class="form-input" placeholder="Search cards..." id="searchCards" style="flex: 1;">
+                    <button class="btn btn-primary">Search</button>
+                    <button class="btn btn-secondary">Filters</button>
+                </div>
+                <div id="collectionList" class="card-grid">
+                    <!-- Cards will be loaded here -->
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <h3>No cards in collection</h3>
+                        <p>Start by adding your first card!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decks Tab -->
+            <div id="decks" class="tab-content">
+                <h1>My Decks</h1>
+                <button class="btn btn-primary" style="margin-bottom: 1.5rem;">➕ Create New Deck</button>
+                <div id="decksList" class="card-grid">
+                    <!-- Decks will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Market Tab -->
+            <div id="market" class="tab-content">
+                <h1>Card Market</h1>
+                <p>Market features coming soon...</p>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content">
+                <h1>Settings</h1>
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">Currency</label>
+                        <select class="form-input">
+                            <option>USD ($)</option>
+                            <option>EUR (€)</option>
+                            <option>JPY (¥)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Language</label>
+                        <select class="form-input">
+                            <option>English</option>
+                            <option>日本語</option>
+                            <option>Español</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary">Save Settings</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Simple, efficient JavaScript
+        class TCGManager {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                // Tab switching
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+                });
+
+                // Mock data for demo
+                this.updateStats();
+            }
+
+            switchTab(tabName) {
+                // Update active tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            }
+
+            updateStats() {
+                // Update dashboard stats (mock data)
+                document.getElementById('totalCards').textContent = '1,247';
+                document.getElementById('collectionValue').textContent = '$4,892';
+                document.getElementById('totalDecks').textContent = '12';
+                document.getElementById('wishlist').textContent = '43';
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new TCGManager();
+        });
+    </script>
+</body>
+</html>
